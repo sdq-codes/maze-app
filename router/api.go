@@ -2,28 +2,27 @@ package router
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/sdq-codes/maze-app/app"
+	app "github.com/sdq-codes/maze-app/app/maze"
+	"github.com/sdq-codes/maze-app/server/handlers"
 	"log"
 	"net/http"
 )
 
 var (
-	maze app.Maze
+	mazeApp app.Maze
 )
 
 func AllRoutes() *mux.Router {
 	R := mux.NewRouter()
-	R.Handle("/", handlers.Handler(healthHandler.CheckHealth)).Methods(http.MethodGet)
 	v1 := R.PathPrefix("/v1").Subrouter()
-	v1.Handle("/mazes", handlers.Handler(maze.Solve)).Methods(http.MethodPost)
+	v1.Handle("/maze/solve", handlers.Handler(mazeApp.Solve)).Methods(http.MethodPost)
+	v1.Handle("/maze/generate", handlers.Handler(mazeApp.Create)).Methods(http.MethodGet)
 	return R
 
 }
 
 func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Print("sad .env file found")
-	}
+	mazeApp = app.NewMaze()
 }
 
 func fatalIfErr(err error) {
